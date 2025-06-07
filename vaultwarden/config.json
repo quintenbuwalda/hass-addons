@@ -17,6 +17,7 @@
     "80/tcp": "Web interface"
   },
   "environment": {
+      "DATA_FOLDER": "/config",
       "PUSH_ENABLED": "[OPTIONS:push_enabled]",
       "PUSH_RELAY_URI": "[OPTIONS:push_relay_uri]",
       "PUSH_IDENTITY_URI": "[OPTIONS:push_identity_uri]",
