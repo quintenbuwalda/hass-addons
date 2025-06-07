@@ -18,7 +18,7 @@
   },
   "environment": {
     "DATA_FOLDER": "/config",
-    "PUSH_ENABLED": true,
+    "PUSH_ENABLED": "true",
     "PUSH_RELAY_URI": "https://api.bitwarden.eu",
     "PUSH_IDENTITY_URI": "https://identity.bitwarden.eu",
     "PUSH_INSTALLATION_ID": "c94fd0f3-5896-4da1-8bb4-b2f500ed42b8",
