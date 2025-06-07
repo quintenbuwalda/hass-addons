@@ -3,35 +3,33 @@
   "version": "1.34.1",
   "slug": "vaultwarden",
   "description": "Alternative implementation of the Bitwarden server API.",
-  "arch": ["amd64", "aarch64"],
-  "homeassistant": "2021.9.0",
-  "startup": "services",
+  "arch": [
+    "amd64",
+    "aarch64"
+  ],
   "boot": "auto",
+  "startup": "services",
+  "image": "ghcr.io/dani-garcia/vaultwarden",
   "ports": {
-    "80/tcp": 7277
+    "80/tcp": "7277"
   },
   "ports_description": {
     "80/tcp": "Web interface"
   },
+  "environment": {
+    "DATA_FOLDER": "/config",
+    "PUSH_ENABLED": true,
+    "PUSH_RELAY_URI": "https://api.bitwarden.eu",
+    "PUSH_IDENTITY_URI": "https://identity.bitwarden.eu",
+    "PUSH_INSTALLATION_ID": "c94fd0f3-5896-4da1-8bb4-b2f500ed42b8",
+    "PUSH_INSTALLATION_KEY": "qnAKuQ6bpEzgdd75iBZa"
+  },
   "map": [
     "addon_config:rw"
   ],
-  "image": null,
-  "options": {
-    "push_enabled": false,
-    "push_relay_uri": "",
-    "push_identity_uri": "",
-    "push_installation_id": "",
-    "push_installation_key": ""
-  },
-  "schema": {
-    "push_enabled": "bool",
-    "push_relay_uri": "str?",
-    "push_identity_uri": "str?",
-    "push_installation_id": "str?",
-    "push_installation_key": "str?"
-  },
+  "url": "https://github.com/quintenbuwalda/hass-addons/tree/main/vaultwarden",
+  "webui": "[PROTO:ssl]://[HOST]:[PORT:80]",
   "ingress": true,
   "ingress_port": 80,
-  "webui": "[PROTO:ssl]://[HOST]:[PORT:80]"
+  "upstream": "1.34.1"
 }
