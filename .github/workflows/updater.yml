@@ -1,0 +1,21 @@
+name: Vaultwarden Updater
+
+on:
+  schedule:
+    - cron: '0 4 * * *'  # 4AM UTC
+  workflow_dispatch:
+
+jobs:
+  update-addon:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run HACS Addon Updater
+        uses: frenck/action-addon-updater@v1
+        with:
+          addon: vaultwarden
+          upstream: dani-garcia/vaultwarden
+          version_type: release
+          token: ${{ secrets.GITHUB_TOKEN }}
