@@ -3,18 +3,28 @@
   "version": "1.34.1",
   "slug": "vaultwarden",
   "description": "Alternative implementation of the Bitwarden server API.",
-  "arch": ["amd64", "aarch64"],
-  "boot": "auto",
+  "arch": [
+    "amd64",
+    "aarch64"
+  ],
+  "homeassistant": "2021.9.0",
   "startup": "services",
-  "init": "bashio",
-  "run": "bashio::run",
+  "boot": "auto",
+  "init": true,
+  "run": "/run.sh",
   "image": "ghcr.io/dani-garcia/vaultwarden",
-  "ports": { "80/tcp": "7277" },
-  "ports_description": { "80/tcp": "Web interface" },
+  "ports": {
+    "80/tcp": 7277
+  },
+  "ports_description": {
+    "80/tcp": "Web interface"
+  },
+  "map": [
+    "addon_config:rw"
+  ],
   "environment": {
     "DATA_FOLDER": "/config"
   },
-  "map": ["addon_config:rw"],
   "options": {
     "push_enabled": false,
     "push_relay_uri": "",
@@ -29,9 +39,7 @@
     "push_installation_id": "str?",
     "push_installation_key": "str?"
   },
-  "url": "https://github.com/quintenbuwalda/hass-addons/tree/main/vaultwarden",
-  "webui": "[PROTO:ssl]://[HOST]:[PORT:80]",
   "ingress": true,
   "ingress_port": 80,
-  "upstream": "1.34.1"
+  "webui": "[PROTO:ssl]://[HOST]:[PORT:80]"
 }
