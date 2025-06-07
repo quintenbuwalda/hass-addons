@@ -27,6 +27,8 @@
   "map": [
     "addon_config:rw"
   ],
+  "options": {},
+  "schema": {},
   "url": "https://github.com/quintenbuwalda/hass-addons/tree/main/vaultwarden",
   "webui": "[PROTO:ssl]://[HOST]:[PORT:80]",
   "ingress": true,
