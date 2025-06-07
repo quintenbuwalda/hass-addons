@@ -17,12 +17,11 @@
     "80/tcp": "Web interface"
   },
   "environment": {
-    "DATA_FOLDER": "/config",
-    "PUSH_ENABLED": "!secret push_enabled",
-    "PUSH_RELAY_URI": "!secret push_relay_uri",
-    "PUSH_IDENTITY_URI": "!secret push_identity_uri",
-    "PUSH_INSTALLATION_ID": "!secret push_installation_id",
-    "PUSH_INSTALLATION_KEY": "!secret push_installation_key"
+      "PUSH_ENABLED": "[OPTIONS:push_enabled]",
+      "PUSH_RELAY_URI": "[OPTIONS:push_relay_uri]",
+      "PUSH_IDENTITY_URI": "[OPTIONS:push_identity_uri]",
+      "PUSH_INSTALLATION_ID": "[OPTIONS:push_installation_id]",
+      "PUSH_INSTALLATION_KEY": "[OPTIONS:push_installation_key]"
   },
   "map": [
     "addon_config:rw"
