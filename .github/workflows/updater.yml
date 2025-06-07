@@ -2,7 +2,7 @@ name: Vaultwarden Updater
 
 on:
   schedule:
-    - cron: '0 4 * * *'  # 4AM UTC
+    - cron: '0 4 * * *'  # daily check at 4AM UTC
   workflow_dispatch:
 
 jobs:
@@ -12,10 +12,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run HACS Addon Updater
-        uses: frenck/action-addon-updater@v1
-        with:
-          addon: vaultwarden
-          upstream: dani-garcia/vaultwarden
-          version_type: release
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Fetch latest upstream Vaultwarden release tag
+        id: upstream
+        run: |
+          LATEST_VERSION=$(curl --silent "https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest" | jq -r .tag_name)
+          # strip leading "v" if present
+          LATEST_VERSION_CLEAN=${LATEST_VERSION#v}
+          echo "Latest upstream version is $LATEST_VERSION_CLEAN"
+          echo "LATEST_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
+
+      - name: Update updater.json and config.json
+        run: |
+          TODAY=$(date '+%d-%m-%Y')
+          echo "Setting last_update=$TODAY"
+          echo "Updating to upstream_version=$LATEST_VERSION"
+
+          # Update updater.json
+          jq --arg date "$TODAY" --arg version "$LATEST_VERSION" \
+            '.last_update = $date | .upstream_version = $version' \
+            vaultwarden/updater.json > vaultwarden/updater.json.tmp
+          mv vaultwarden/updater.json.tmp vaultwarden/updater.json
+
+          # Update config.json (version and upstream)
+          jq --arg version "$LATEST_VERSION" \
+            '.version = $version | .upstream = $version' \
+            vaultwarden/config.json > vaultwarden/config.json.tmp
+          mv vaultwarden/config.json.tmp vaultwarden/config.json
+
+      - name: Commit and push changes
+        env:
+          GIT_USER_NAME: "quintenbuwalda"
+          GIT_USER_EMAIL: "quintenbuwalda@users.noreply.github.com"
+        run: |
+          git config --global user.name "$GIT_USER_NAME"
+          git config --global user.email "$GIT_USER_EMAIL"
+          git add vaultwarden/updater.json vaultwarden/config.json
+          git commit -m "Updater Bot : Update to $LATEST_VERSION" || echo "No changes to commit"
+          git push
