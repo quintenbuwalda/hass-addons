@@ -3,30 +3,18 @@
   "version": "1.34.1",
   "slug": "vaultwarden",
   "description": "Alternative implementation of the Bitwarden server API.",
-  "arch": [
-    "amd64",
-    "aarch64"
-  ],
+  "arch": ["amd64", "aarch64"],
   "boot": "auto",
   "startup": "services",
+  "init": "bashio",
+  "run": "bashio::run",
   "image": "ghcr.io/dani-garcia/vaultwarden",
-  "ports": {
-    "80/tcp": "7277"
-  },
-  "ports_description": {
-    "80/tcp": "Web interface"
-  },
+  "ports": { "80/tcp": "7277" },
+  "ports_description": { "80/tcp": "Web interface" },
   "environment": {
-      "DATA_FOLDER": "/config",
-      "PUSH_ENABLED": "[OPTIONS:push_enabled]",
-      "PUSH_RELAY_URI": "[OPTIONS:push_relay_uri]",
-      "PUSH_IDENTITY_URI": "[OPTIONS:push_identity_uri]",
-      "PUSH_INSTALLATION_ID": "[OPTIONS:push_installation_id]",
-      "PUSH_INSTALLATION_KEY": "[OPTIONS:push_installation_key]"
+    "DATA_FOLDER": "/config"
   },
-  "map": [
-    "addon_config:rw"
-  ],
+  "map": ["addon_config:rw"],
   "options": {
     "push_enabled": false,
     "push_relay_uri": "",
