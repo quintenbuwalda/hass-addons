@@ -1,6 +1,6 @@
 {
   "name": "Vaultwarden+",
-  "version": "null",
+  "version": "1.34.1",
   "slug": "vaultwarden",
   "description": "Alternative implementation of the Bitwarden server API.",
   "arch": [
@@ -33,5 +33,5 @@
   "webui": "[PROTO:ssl]://[HOST]:[PORT:80]",
   "ingress": true,
   "ingress_port": 80,
-  "upstream": "null"
+  "upstream": "1.34.1"
 }
