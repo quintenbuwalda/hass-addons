@@ -53,7 +53,7 @@ Under the Logins section add the following code:
 - username: booklore
   password: your_secure_password
 ```
-Under the Rights secion add the following code:
+Under the Rights section add the following code:
 ```
 - username: booklore
   database: booklore
