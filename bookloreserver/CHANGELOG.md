@@ -11,7 +11,7 @@
 
 ## 1.2.5
 - Update BookLore Version from 1.16.5 to 1.18.5
-- Remove depreciated codenotary field
+- Remove deprecated codenotary field
 
 ## 1.2.4
 - Update BookLore Version from 1.15.0 to 1.16.5
