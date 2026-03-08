@@ -2,7 +2,7 @@
 ## 2.0.1
 - Update BookLore Version from 2.0.0 to 2.0.1
 - Updated Config to use USER_ID: "0" and GROUP_ID: "0". This seems to ahve fixed an issue with new users being unable to start the service.
-- Updated DATABASE_URL based on a user suggestion to use the internal home assisstant docker network. Thank you @Antexa.
+- Updated DATABASE_URL based on a user suggestion to use the internal home assistant docker network. Thank you @Antexa.
   - Now the defualt is jdbc:mariadb://core-mariadb:3306/booklore?useUnicode=true&characterEncoding=utf8mb4
     - This approach is more secure because the MariaDB port does not need to be exposed to the LAN.
 
