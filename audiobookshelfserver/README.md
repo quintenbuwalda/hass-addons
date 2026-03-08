@@ -45,11 +45,11 @@ If you want to use a network drive please add it to homeassistant in Network Sto
   - Path to the config directory.
   - It will contain the database (users/books/libraries/settings). This location must not be mounted over the network.
 
-- **METADATA_PATH** (default: /metadata)
+- **METADATA_PATH** (default: /config/metadata)
   - Path to the metadata directory.
   - It will contain cache, streams, covers, downloads, backups and logs.
 
-- **BACKUP_PATH** (default: /metadata/backups)
+- **BACKUP_PATH** (default: /backup/audiobookshelfserver)
   - Path to where backups are stored.
   - Backups contain a backup of the database in /config and images/metadata stored in /metadata/items and /metadata/authors
 
