@@ -1,0 +1,33 @@
+name: BookLore Server
+version: 2.0.1
+slug: bookloreserver
+description: BookLore is a self-hosted app for managing and reading books & comics (PDF, EPUB, CBZ) with metadata editing, OPDS, reading progress, and multi-user support.
+arch:
+  - amd64
+  - aarch64
+boot: manual
+environment:
+  USER_ID: "0"
+  GROUP_ID: "0"
+  BOOKLORE_PORT: "6060"
+  TZ: "Etc/UTC"
+  DATABASE_URL: "jdbc:mariadb://core-mariadb:3306/booklore?useUnicode=true&characterEncoding=utf8mb4"
+  DATABASE_USERNAME: "booklore"
+  DATABASE_PASSWORD: "your_secure_password"
+  SWAGGER_ENABLED: "false"
+options: {}
+schema: {}
+ports:
+  6060/tcp: 6060
+ports_description:
+  6060/tcp: Web interface port. Do Not Change!
+webui: http://[HOST]:[PORT:6060]
+ingress: true
+ingress_port: 6060
+legacy: true
+map:
+  - media:rw
+  - addon_config:rw
+  - share:rw
+panel_icon: mdi:bookshelf
+panel_title: BookLore

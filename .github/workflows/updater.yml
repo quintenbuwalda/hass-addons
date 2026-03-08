@@ -1,4 +1,4 @@
-name: Vaultwarden Updater
+name: Addons Updater
 
 on:
   schedule:
@@ -6,46 +6,109 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-addon:
+  update-addons:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Fetch latest upstream Vaultwarden release tag
-        id: upstream
+      - name: Update Vaultwarden
+        id: vaultwarden_update
         run: |
           LATEST_VERSION=$(curl --silent "https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest" | jq -r .tag_name)
           # strip leading "v" if present
           LATEST_VERSION_CLEAN=${LATEST_VERSION#v}
-          echo "Latest upstream version is $LATEST_VERSION_CLEAN"
-          echo "LATEST_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
+          echo "Latest Vaultwarden version is $LATEST_VERSION_CLEAN"
 
-      - name: Update updater.json and config.json
+          CURRENT_VERSION=$(jq -r '.version' vaultwarden/config.json)
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ]; then
+            echo "Updating Vaultwarden from $CURRENT_VERSION to $LATEST_VERSION_CLEAN"
+            TODAY=$(date '+%d-%m-%Y')
+
+            # Update updater.json
+            jq --arg date "$TODAY" --arg version "$LATEST_VERSION_CLEAN" \
+              '.last_update = $date | .upstream_version = $version' \
+              vaultwarden/updater.json > vaultwarden/updater.json.tmp
+            mv vaultwarden/updater.json.tmp vaultwarden/updater.json
+
+            # Update config.json (version and upstream)
+            jq --arg version "$LATEST_VERSION_CLEAN" \
+              '.version = $version | .upstream = $version' \
+              vaultwarden/config.json > vaultwarden/config.json.tmp
+            mv vaultwarden/config.json.tmp vaultwarden/config.json
+
+            echo "VAULTWARDEN_UPDATED=true" >> $GITHUB_ENV
+            echo "VAULTWARDEN_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
+          fi
+
+      - name: Update Audiobookshelf
+        id: audiobookshelf_update
         run: |
-          TODAY=$(date '+%d-%m-%Y')
-          echo "Setting last_update=$TODAY"
-          echo "Updating to upstream_version=$LATEST_VERSION"
+          LATEST_VERSION=$(curl --silent "https://api.github.com/repos/advplyr/audiobookshelf/releases/latest" | jq -r .tag_name)
+          LATEST_VERSION_CLEAN=${LATEST_VERSION#v}
+          echo "Latest Audiobookshelf version is $LATEST_VERSION_CLEAN"
 
-          # Update updater.json
-          jq --arg date "$TODAY" --arg version "$LATEST_VERSION" \
-            '.last_update = $date | .upstream_version = $version' \
-            vaultwarden/updater.json > vaultwarden/updater.json.tmp
-          mv vaultwarden/updater.json.tmp vaultwarden/updater.json
+          CURRENT_VERSION=$(grep -E '^version: ' audiobookshelfserver/config.yaml | awk '{print $2}' | tr -d '"'\''')
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ] && [ -n "$LATEST_VERSION_CLEAN" ] && [ "$LATEST_VERSION_CLEAN" != "null" ]; then
+            echo "Updating Audiobookshelf from $CURRENT_VERSION to $LATEST_VERSION_CLEAN"
 
-          # Update config.json (version and upstream)
-          jq --arg version "$LATEST_VERSION" \
-            '.version = $version | .upstream = $version' \
-            vaultwarden/config.json > vaultwarden/config.json.tmp
-          mv vaultwarden/config.json.tmp vaultwarden/config.json
+            sed -i "s/^version: .*/version: ${LATEST_VERSION_CLEAN}/" audiobookshelfserver/config.yaml
+            sed -i "s|ghcr.io/advplyr/audiobookshelf:.*|ghcr.io/advplyr/audiobookshelf:${LATEST_VERSION_CLEAN}|" audiobookshelfserver/build.yaml
+
+            echo "AUDIOBOOKSHELF_UPDATED=true" >> $GITHUB_ENV
+            echo "AUDIOBOOKSHELF_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
+          fi
+
+      - name: Update BookLore
+        id: booklore_update
+        run: |
+          LATEST_VERSION=$(curl --silent "https://api.github.com/repos/booklore-app/booklore/releases/latest" | jq -r .tag_name)
+          LATEST_VERSION_CLEAN=${LATEST_VERSION#v}
+          echo "Latest BookLore version is $LATEST_VERSION_CLEAN"
+
+          CURRENT_VERSION=$(grep -E '^version: ' bookloreserver/config.yaml | awk '{print $2}' | tr -d '"'\''')
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ] && [ -n "$LATEST_VERSION_CLEAN" ] && [ "$LATEST_VERSION_CLEAN" != "null" ]; then
+            echo "Updating BookLore from $CURRENT_VERSION to $LATEST_VERSION_CLEAN"
+
+            sed -i "s/^version: .*/version: ${LATEST_VERSION_CLEAN}/" bookloreserver/config.yaml
+            # The base image tag for booklore starts with v, so we use LATEST_VERSION
+            sed -i "s|ghcr.io/booklore-app/booklore:.*|ghcr.io/booklore-app/booklore:${LATEST_VERSION}|" bookloreserver/build.yaml
+
+            echo "BOOKLORE_UPDATED=true" >> $GITHUB_ENV
+            echo "BOOKLORE_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
+          fi
 
       - name: Commit and push changes
         env:
           GIT_USER_NAME: "quintenbuwalda"
           GIT_USER_EMAIL: "quintenbuwalda@users.noreply.github.com"
         run: |
-          git config --global user.name "$GIT_USER_NAME"
-          git config --global user.email "$GIT_USER_EMAIL"
-          git add vaultwarden/updater.json vaultwarden/config.json
-          git commit -m "Updater Bot : Update to $LATEST_VERSION" || echo "No changes to commit"
-          git push
+          if [ "$VAULTWARDEN_UPDATED" = "true" ] || [ "$AUDIOBOOKSHELF_UPDATED" = "true" ] || [ "$BOOKLORE_UPDATED" = "true" ]; then
+            git config --global user.name "$GIT_USER_NAME"
+            git config --global user.email "$GIT_USER_EMAIL"
+
+            COMMIT_MSG="Updater Bot: "
+
+            if [ "$VAULTWARDEN_UPDATED" = "true" ]; then
+              git add vaultwarden/updater.json vaultwarden/config.json
+              COMMIT_MSG="${COMMIT_MSG}Vaultwarden to $VAULTWARDEN_VERSION, "
+            fi
+
+            if [ "$AUDIOBOOKSHELF_UPDATED" = "true" ]; then
+              git add audiobookshelfserver/config.yaml audiobookshelfserver/build.yaml
+              COMMIT_MSG="${COMMIT_MSG}Audiobookshelf to $AUDIOBOOKSHELF_VERSION, "
+            fi
+
+            if [ "$BOOKLORE_UPDATED" = "true" ]; then
+              git add bookloreserver/config.yaml bookloreserver/build.yaml
+              COMMIT_MSG="${COMMIT_MSG}BookLore to $BOOKLORE_VERSION, "
+            fi
+
+            # Remove trailing comma and space
+            COMMIT_MSG=${COMMIT_MSG%, }
+
+            git commit -m "$COMMIT_MSG"
+            git push
+          else
+            echo "No changes to commit"
+          fi
