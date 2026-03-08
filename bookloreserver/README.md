@@ -1,7 +1,7 @@
 # BookLore Home Assistant Add-on
 ![GitHub Release](https://img.shields.io/github/v/release/bigred10151990/bookloreserver)
 ![Project Maintenance][BLmaintenance-shield]
-[![License][BLlicense-shield]](LICENSE.md)
+[![License][BLlicense-shield]](LICENSE)
 
 ![Supports aarch64 Architecture][BLaarch64-shield]
 ![Supports amd64 Architecture][BLamd64-shield]
