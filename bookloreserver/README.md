@@ -23,7 +23,7 @@ This add-on runs [BookLore](https://github.com/booklore-app/booklore) inside Hom
 
 Base BookLore Version 2.0.1
 
-**This addon REQUIRES the MariaDB addon or a seprate MariaDB instance**
+**This addon REQUIRES the MariaDB addon or a separate MariaDB instance**
 
 This addon has access to the addon_config, media and share folders.
 
