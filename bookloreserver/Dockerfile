@@ -5,3 +5,4 @@ FROM ${BUILD_FROM}
 LABEL maintainer="Bigred <bigred10151990@gmail.com>"
 
 EXPOSE 80
+EXPOSE 6060

@@ -27,7 +27,7 @@ schema:
 ports:
   80/tcp: 13379
 ports_description:
-  13379/tcp: Web interface port
+  80/tcp: Web interface port
 webui: http://[HOST]:[PORT:13379]
 ingress: true
 ingress_port: 80

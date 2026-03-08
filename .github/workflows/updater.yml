@@ -21,7 +21,7 @@ jobs:
           echo "Latest Vaultwarden version is $LATEST_VERSION_CLEAN"
 
           CURRENT_VERSION=$(jq -r '.version' vaultwarden/config.json)
-          if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ] && [ -n "$LATEST_VERSION_CLEAN" ] && [ "$LATEST_VERSION_CLEAN" != "null" ]; then
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ]; then
             echo "Updating Vaultwarden from $CURRENT_VERSION to $LATEST_VERSION_CLEAN"
             TODAY=$(date '+%d-%m-%Y')
 

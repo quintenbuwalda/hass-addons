@@ -1,7 +1,7 @@
 # Audiobookshelf Home Assistant Add-on
 [![GitHub Release][releases-shield]][releases]
 ![Project Stage][project-stage-shield]
-[![License][license-shield]](LICENSE)
+[![License][license-shield]](LICENSE.md)
 
 ![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
@@ -45,11 +45,11 @@ If you want to use a network drive please add it to homeassistant in Network Sto
   - Path to the config directory.
   - It will contain the database (users/books/libraries/settings). This location must not be mounted over the network.
 
-- **METADATA_PATH** (default: /config/metadata)
+- **METADATA_PATH** (default: /metadata)
   - Path to the metadata directory.
   - It will contain cache, streams, covers, downloads, backups and logs.
 
-- **BACKUP_PATH** (default: /backup/audiobookshelfserver)
+- **BACKUP_PATH** (default: /metadata/backups)
   - Path to where backups are stored.
   - Backups contain a backup of the database in /config and images/metadata stored in /metadata/items and /metadata/authors
 

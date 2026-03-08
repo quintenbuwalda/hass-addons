@@ -1,7 +1,7 @@
 # BookLore Home Assistant Add-on
 ![GitHub Release](https://img.shields.io/github/v/release/bigred10151990/bookloreserver)
 ![Project Maintenance][BLmaintenance-shield]
-[![License][BLlicense-shield]](LICENSE)
+[![License][BLlicense-shield]](LICENSE.md)
 
 ![Supports aarch64 Architecture][BLaarch64-shield]
 ![Supports amd64 Architecture][BLamd64-shield]
@@ -23,7 +23,7 @@ This add-on runs [BookLore](https://github.com/booklore-app/booklore) inside Hom
 
 Base BookLore Version 2.0.1
 
-**This addon REQUIRES the MariaDB addon or a separate MariaDB instance**
+**This addon REQUIRES the MariaDB addon or a seprate MariaDB instance**
 
 This addon has access to the addon_config, media and share folders.
 
@@ -53,7 +53,7 @@ Under the Logins section add the following code:
 - username: booklore
   password: your_secure_password
 ```
-Under the Rights section add the following code:
+Under the Rights secion add the following code:
 ```
 - username: booklore
   database: booklore
