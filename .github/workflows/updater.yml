@@ -1,8 +1,8 @@
 name: Addons Updater
 
 on:
-  schedule:
-    - cron: '0 4 * * *'  # daily check at 4AM UTC
+  # schedule:
+  #   - cron: '0 4 * * *'  # daily check at 4AM UTC
   workflow_dispatch:
 
 jobs:
