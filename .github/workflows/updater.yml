@@ -1,8 +1,8 @@
 name: Addons Updater
 
 on:
-  # schedule:
-  #   - cron: '0 4 * * *'  # daily check at 4AM UTC
+  schedule:
+    - cron: '0 4 * * 0'  # weekly check at 4AM UTC on Sunday
   workflow_dispatch:
 
 jobs:
@@ -78,12 +78,30 @@ jobs:
             echo "BOOKLORE_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
           fi
 
+      - name: Update Pocket ID
+        id: pocket_id_update
+        run: |
+          LATEST_VERSION=$(curl --silent "https://api.github.com/repos/pocket-id/pocket-id/releases/latest" | jq -r .tag_name)
+          LATEST_VERSION_CLEAN=${LATEST_VERSION#v}
+          echo "Latest Pocket ID version is $LATEST_VERSION_CLEAN"
+
+          CURRENT_VERSION=$(grep -E '^ARG POCKET_ID_VERSION=' pocket-id/Dockerfile | cut -d '"' -f 2 | tr -d 'v')
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ] && [ -n "$LATEST_VERSION_CLEAN" ] && [ "$LATEST_VERSION_CLEAN" != "null" ]; then
+            echo "Updating Pocket ID from $CURRENT_VERSION to $LATEST_VERSION_CLEAN"
+
+            sed -i "s/^version: .*/version: ${LATEST_VERSION_CLEAN}/" pocket-id/config.yaml
+            sed -i "s/^ARG POCKET_ID_VERSION=.*/ARG POCKET_ID_VERSION=\"${LATEST_VERSION}\"/" pocket-id/Dockerfile
+
+            echo "POCKET_ID_UPDATED=true" >> $GITHUB_ENV
+            echo "POCKET_ID_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
+          fi
+
       - name: Commit and push changes
         env:
           GIT_USER_NAME: "quintenbuwalda"
           GIT_USER_EMAIL: "quintenbuwalda@users.noreply.github.com"
         run: |
-          if [ "$VAULTWARDEN_UPDATED" = "true" ] || [ "$AUDIOBOOKSHELF_UPDATED" = "true" ] || [ "$BOOKLORE_UPDATED" = "true" ]; then
+          if [ "$VAULTWARDEN_UPDATED" = "true" ] || [ "$AUDIOBOOKSHELF_UPDATED" = "true" ] || [ "$BOOKLORE_UPDATED" = "true" ] || [ "$POCKET_ID_UPDATED" = "true" ]; then
             git config --global user.name "$GIT_USER_NAME"
             git config --global user.email "$GIT_USER_EMAIL"
 
@@ -102,6 +120,11 @@ jobs:
             if [ "$BOOKLORE_UPDATED" = "true" ]; then
               git add bookloreserver/config.yaml bookloreserver/build.yaml
               COMMIT_MSG="${COMMIT_MSG}BookLore to $BOOKLORE_VERSION, "
+            fi
+
+            if [ "$POCKET_ID_UPDATED" = "true" ]; then
+              git add pocket-id/config.yaml pocket-id/Dockerfile
+              COMMIT_MSG="${COMMIT_MSG}Pocket ID to $POCKET_ID_VERSION, "
             fi
 
             # Remove trailing comma and space
