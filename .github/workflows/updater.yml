@@ -14,16 +14,21 @@ jobs:
 
       - name: Update Vaultwarden
         id: vaultwarden_update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST_VERSION=$(curl --silent "https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest" | jq -r .tag_name)
+          RELEASE_DATA=$(curl -sH "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/dani-garcia/vaultwarden/releases/latest")
+          LATEST_VERSION=$(echo "$RELEASE_DATA" | jq -r .tag_name)
+          RELEASE_NOTES=$(echo "$RELEASE_DATA" | jq -r .body)
           # strip leading "v" if present
           LATEST_VERSION_CLEAN=${LATEST_VERSION#v}
           echo "Latest Vaultwarden version is $LATEST_VERSION_CLEAN"
 
           CURRENT_VERSION=$(jq -r '.version' vaultwarden/config.json)
-          if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ]; then
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ] && [ -n "$LATEST_VERSION_CLEAN" ] && [ "$LATEST_VERSION_CLEAN" != "null" ]; then
             echo "Updating Vaultwarden from $CURRENT_VERSION to $LATEST_VERSION_CLEAN"
             TODAY=$(date '+%d-%m-%Y')
+            CHANGELOG_DATE=$(date '+%Y-%m-%d')
 
             # Update updater.json
             jq --arg date "$TODAY" --arg version "$LATEST_VERSION_CLEAN" \
@@ -37,23 +42,48 @@ jobs:
               vaultwarden/config.json > vaultwarden/config.json.tmp
             mv vaultwarden/config.json.tmp vaultwarden/config.json
 
+            # Update CHANGELOG.md
+            {
+              echo "## [${LATEST_VERSION_CLEAN}] - ${CHANGELOG_DATE}"
+              echo ""
+              if [ "$RELEASE_NOTES" != "null" ]; then echo "$RELEASE_NOTES"; else echo "No release notes provided."; fi
+              echo ""
+              if [ -f "vaultwarden/CHANGELOG.md" ]; then cat vaultwarden/CHANGELOG.md; fi
+            } > changelog.tmp
+            mv changelog.tmp vaultwarden/CHANGELOG.md
+
             echo "VAULTWARDEN_UPDATED=true" >> $GITHUB_ENV
             echo "VAULTWARDEN_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
           fi
 
       - name: Update Audiobookshelf
         id: audiobookshelf_update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST_VERSION=$(curl --silent "https://api.github.com/repos/advplyr/audiobookshelf/releases/latest" | jq -r .tag_name)
+          RELEASE_DATA=$(curl -sH "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/advplyr/audiobookshelf/releases/latest")
+          LATEST_VERSION=$(echo "$RELEASE_DATA" | jq -r .tag_name)
+          RELEASE_NOTES=$(echo "$RELEASE_DATA" | jq -r .body)
           LATEST_VERSION_CLEAN=${LATEST_VERSION#v}
           echo "Latest Audiobookshelf version is $LATEST_VERSION_CLEAN"
 
           CURRENT_VERSION=$(grep -E '^version: ' audiobookshelfserver/config.yaml | awk '{print $2}' | tr -d '"'\''')
           if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ] && [ -n "$LATEST_VERSION_CLEAN" ] && [ "$LATEST_VERSION_CLEAN" != "null" ]; then
             echo "Updating Audiobookshelf from $CURRENT_VERSION to $LATEST_VERSION_CLEAN"
+            CHANGELOG_DATE=$(date '+%Y-%m-%d')
 
             sed -i "s/^version: .*/version: ${LATEST_VERSION_CLEAN}/" audiobookshelfserver/config.yaml
             sed -i "s|ghcr.io/advplyr/audiobookshelf:.*|ghcr.io/advplyr/audiobookshelf:${LATEST_VERSION_CLEAN}|" audiobookshelfserver/build.yaml
+
+            # Update CHANGELOG.md
+            {
+              echo "## [${LATEST_VERSION_CLEAN}] - ${CHANGELOG_DATE}"
+              echo ""
+              if [ "$RELEASE_NOTES" != "null" ]; then echo "$RELEASE_NOTES"; else echo "No release notes provided."; fi
+              echo ""
+              if [ -f "audiobookshelfserver/CHANGELOG.md" ]; then cat audiobookshelfserver/CHANGELOG.md; fi
+            } > changelog.tmp
+            mv changelog.tmp audiobookshelfserver/CHANGELOG.md
 
             echo "AUDIOBOOKSHELF_UPDATED=true" >> $GITHUB_ENV
             echo "AUDIOBOOKSHELF_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
@@ -61,21 +91,69 @@ jobs:
 
       - name: Update BookLore
         id: booklore_update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          LATEST_VERSION=$(curl --silent "https://api.github.com/repos/booklore-app/booklore/releases/latest" | jq -r .tag_name)
+          RELEASE_DATA=$(curl -sH "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/booklore-app/booklore/releases/latest")
+          LATEST_VERSION=$(echo "$RELEASE_DATA" | jq -r .tag_name)
+          RELEASE_NOTES=$(echo "$RELEASE_DATA" | jq -r .body)
           LATEST_VERSION_CLEAN=${LATEST_VERSION#v}
           echo "Latest BookLore version is $LATEST_VERSION_CLEAN"
 
           CURRENT_VERSION=$(grep -E '^version: ' bookloreserver/config.yaml | awk '{print $2}' | tr -d '"'\''')
           if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ] && [ -n "$LATEST_VERSION_CLEAN" ] && [ "$LATEST_VERSION_CLEAN" != "null" ]; then
             echo "Updating BookLore from $CURRENT_VERSION to $LATEST_VERSION_CLEAN"
+            CHANGELOG_DATE=$(date '+%Y-%m-%d')
 
             sed -i "s/^version: .*/version: ${LATEST_VERSION_CLEAN}/" bookloreserver/config.yaml
-            # The base image tag for booklore starts with v, so we use LATEST_VERSION
             sed -i "s|ghcr.io/booklore-app/booklore:.*|ghcr.io/booklore-app/booklore:${LATEST_VERSION}|" bookloreserver/build.yaml
+
+            # Update CHANGELOG.md
+            {
+              echo "## [${LATEST_VERSION_CLEAN}] - ${CHANGELOG_DATE}"
+              echo ""
+              if [ "$RELEASE_NOTES" != "null" ]; then echo "$RELEASE_NOTES"; else echo "No release notes provided."; fi
+              echo ""
+              if [ -f "bookloreserver/CHANGELOG.md" ]; then cat bookloreserver/CHANGELOG.md; fi
+            } > changelog.tmp
+            mv changelog.tmp bookloreserver/CHANGELOG.md
 
             echo "BOOKLORE_UPDATED=true" >> $GITHUB_ENV
             echo "BOOKLORE_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
+          fi
+
+      - name: Update Pocket ID
+        id: pocket_id_update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_DATA=$(curl -sH "Authorization: token $GITHUB_TOKEN" "https://api.github.com/repos/pocket-id/pocket-id/releases/latest")
+          LATEST_VERSION=$(echo "$RELEASE_DATA" | jq -r .tag_name)
+          RELEASE_NOTES=$(echo "$RELEASE_DATA" | jq -r .body)
+          LATEST_VERSION_CLEAN=${LATEST_VERSION#v}
+          echo "Latest Pocket ID version is $LATEST_VERSION_CLEAN"
+
+          CURRENT_VERSION=$(grep -E '^version: ' pocket-id/config.yaml | awk '{print $2}' | tr -d '"'\''')
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ] && [ -n "$LATEST_VERSION_CLEAN" ] && [ "$LATEST_VERSION_CLEAN" != "null" ]; then
+            echo "Updating Pocket ID from $CURRENT_VERSION to $LATEST_VERSION_CLEAN"
+            CHANGELOG_DATE=$(date '+%Y-%m-%d')
+
+            # Update config.yaml and Dockerfile
+            sed -i "s/^version: .*/version: ${LATEST_VERSION_CLEAN}/" pocket-id/config.yaml
+            sed -i "s/^ARG POCKET_ID_VERSION=.*/ARG POCKET_ID_VERSION=\"v${LATEST_VERSION_CLEAN}\"/" pocket-id/Dockerfile
+
+            # Update CHANGELOG.md
+            {
+              echo "## [${LATEST_VERSION_CLEAN}] - ${CHANGELOG_DATE}"
+              echo ""
+              if [ "$RELEASE_NOTES" != "null" ]; then echo "$RELEASE_NOTES"; else echo "No release notes provided."; fi
+              echo ""
+              if [ -f "pocket-id/CHANGELOG.md" ]; then cat pocket-id/CHANGELOG.md; fi
+            } > changelog.tmp
+            mv changelog.tmp pocket-id/CHANGELOG.md
+
+            echo "POCKET_ID_UPDATED=true" >> $GITHUB_ENV
+            echo "POCKET_ID_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
           fi
 
       - name: Commit and push changes
@@ -83,25 +161,30 @@ jobs:
           GIT_USER_NAME: "quintenbuwalda"
           GIT_USER_EMAIL: "quintenbuwalda@users.noreply.github.com"
         run: |
-          if [ "$VAULTWARDEN_UPDATED" = "true" ] || [ "$AUDIOBOOKSHELF_UPDATED" = "true" ] || [ "$BOOKLORE_UPDATED" = "true" ]; then
+          if [ "$VAULTWARDEN_UPDATED" = "true" ] || [ "$AUDIOBOOKSHELF_UPDATED" = "true" ] || [ "$BOOKLORE_UPDATED" = "true" ] || [ "$POCKET_ID_UPDATED" = "true" ]; then
             git config --global user.name "$GIT_USER_NAME"
             git config --global user.email "$GIT_USER_EMAIL"
 
             COMMIT_MSG="Updater Bot: "
 
             if [ "$VAULTWARDEN_UPDATED" = "true" ]; then
-              git add vaultwarden/updater.json vaultwarden/config.json
+              git add vaultwarden/updater.json vaultwarden/config.json vaultwarden/CHANGELOG.md
               COMMIT_MSG="${COMMIT_MSG}Vaultwarden to $VAULTWARDEN_VERSION, "
             fi
 
             if [ "$AUDIOBOOKSHELF_UPDATED" = "true" ]; then
-              git add audiobookshelfserver/config.yaml audiobookshelfserver/build.yaml
+              git add audiobookshelfserver/config.yaml audiobookshelfserver/build.yaml audiobookshelfserver/CHANGELOG.md
               COMMIT_MSG="${COMMIT_MSG}Audiobookshelf to $AUDIOBOOKSHELF_VERSION, "
             fi
 
             if [ "$BOOKLORE_UPDATED" = "true" ]; then
-              git add bookloreserver/config.yaml bookloreserver/build.yaml
+              git add bookloreserver/config.yaml bookloreserver/build.yaml bookloreserver/CHANGELOG.md
               COMMIT_MSG="${COMMIT_MSG}BookLore to $BOOKLORE_VERSION, "
+            fi
+
+            if [ "$POCKET_ID_UPDATED" = "true" ]; then
+              git add pocket-id/config.yaml pocket-id/Dockerfile pocket-id/CHANGELOG.md
+              COMMIT_MSG="${COMMIT_MSG}Pocket ID to $POCKET_ID_VERSION, "
             fi
 
             # Remove trailing comma and space

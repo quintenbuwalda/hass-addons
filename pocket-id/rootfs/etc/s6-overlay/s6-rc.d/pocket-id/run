@@ -1,0 +1,42 @@
+#!/usr/bin/with-contenv bashio
+# shellcheck shell=bash
+# ==============================================================================
+# Home Assistant App: pocket-id
+# Runs Pocket ID
+# ==============================================================================
+
+bashio::log.info 'Starting Pocket ID...'
+
+# Check if pocket-id binary exists
+if [ -f /app/pocket-id ]; then
+    bashio::log.debug 'Pocket ID binary found!'
+else
+    bashio::log.error 'Pocket ID binary not found at /app/pocket-id'
+    exit 1
+fi
+
+# Set variables
+export APP_URL="$(bashio::config 'APP_URL')"
+export TRUST_PROXY="$(bashio::config 'TRUST_PROXY')"
+export ENCRYPTION_KEY_FILE="/app/data/secrets/encryption_key"
+
+bashio::log.debug "APP_URL value: $APP_URL"
+bashio::log.debug "TRUST_PROXY value: $TRUST_PROXY"
+
+if bashio::config.has_value 'MAXMIND_LICENSE_KEY'; then
+    bashio::log.debug 'MAXMIND_LICENSE_KEY has been configured. Setting environment variable...'
+    export MAXMIND_LICENSE_KEY="$(bashio::config 'MAXMIND_LICENSE_KEY')"
+else
+    bashio::log.debug 'No MAXMIND_LICENSE_KEY set in configuration.'
+fi
+
+APP_LOG_LEVEL="$(bashio::string.lower "$(bashio::config 'log_level')" )"
+export LOG_LEVEL="${APP_LOG_LEVEL}"
+
+# Run pocket-id
+bashio::log.info 'Running Pocket ID...'
+
+# Change working directory so relative paths like file:data/pocket-id.db work
+cd /app || bashio::exit.nok 'Failed to cd into /app'
+
+exec ./pocket-id
