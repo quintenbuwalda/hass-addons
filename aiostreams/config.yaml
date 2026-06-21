@@ -1,0 +1,34 @@
+---
+name: AIOStreams
+version: "2.30.3"
+slug: aiostreams
+description: Consolidate Stremio add-ons and debrid services into one configurable add-on
+url: https://github.com/quintenbuwalda/hass-addons/tree/main/aiostreams
+arch:
+  - amd64
+  - aarch64
+init: false
+options:
+  BASE_URL: ""
+  DATABASE_URI: "sqlite://./data/db.sqlite"
+  AIOSTREAMS_AUTH: ""
+  AIOSTREAMS_AUTH_ADMINS: ""
+  AIOSTREAMS_AUTH_PROXY: ""
+  LOG_LEVEL: "info"
+schema:
+  BASE_URL: str
+  DATABASE_URI: str
+  AIOSTREAMS_AUTH: str?
+  AIOSTREAMS_AUTH_ADMINS: str?
+  AIOSTREAMS_AUTH_PROXY: str?
+  LOG_LEVEL: list(error|warn|info|http|verbose|debug|silly)
+ports:
+  3000/tcp: 3000
+ports_description:
+  3000/tcp: AIOStreams web interface
+webui: http://[HOST]:[PORT:3000]
+map:
+  - type: data
+    path: /app/data
+panel_icon: mdi:play-box-multiple
+panel_title: AIOStreams
