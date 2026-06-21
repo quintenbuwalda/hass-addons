@@ -1,6 +1,6 @@
-ARG BUILD_FROM
-# hadolint ignore=DL3006
-FROM $BUILD_FROM
+# Introduce BUILD_ARCH before FROM so it can be used to dynamically select the base image
+ARG BUILD_ARCH
+FROM ghcr.io/hassio-addons/base/${BUILD_ARCH}:21.0.0
 
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -9,7 +9,6 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ARG POCKET_ID_VERSION="v2.9.0"
 
 # Install Pocket ID
-ARG BUILD_ARCH=amd64
 RUN \
     set -eux \
     \
@@ -24,8 +23,7 @@ RUN \
 # Copy root filesystem
 COPY rootfs /
 
-# Build arguments
-ARG BUILD_ARCH
+# Build arguments passed by Home Assistant Supervisor
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
 ARG BUILD_NAME
