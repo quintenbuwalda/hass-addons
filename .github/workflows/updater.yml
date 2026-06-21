@@ -175,6 +175,42 @@ jobs:
             echo "POCKET_ID_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
           fi
 
+      - name: Update AIOStreams
+        id: aiostreams_update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # /releases/latest returns the newest non-prerelease release; nightlies are excluded.
+          RELEASE_DATA=$(curl -sH "Authorization: Bearer $GITHUB_TOKEN" "https://api.github.com/repos/Viren070/AIOStreams/releases/latest")
+          LATEST_VERSION=$(echo "$RELEASE_DATA" | jq -r '.tag_name // empty')
+          RELEASE_NOTES=$(echo "$RELEASE_DATA" | jq -r '.body // empty')
+
+          if [ -z "$LATEST_VERSION" ]; then exit 0; fi
+
+          LATEST_VERSION_CLEAN=${LATEST_VERSION#v}
+          echo "Latest stable AIOStreams version is $LATEST_VERSION_CLEAN"
+
+          CURRENT_VERSION=$(grep -E '^version: ' aiostreams/config.yaml | awk '{print $2}' | tr -d '"'\''')
+          if [ "$CURRENT_VERSION" != "$LATEST_VERSION_CLEAN" ]; then
+            echo "Updating AIOStreams from $CURRENT_VERSION to $LATEST_VERSION_CLEAN"
+            CHANGELOG_DATE=$(date '+%Y-%m-%d')
+
+            sed -i "s/^version: .*/version: \"${LATEST_VERSION_CLEAN}\"/" aiostreams/config.yaml
+            sed -i "s|\(ghcr.io/viren070/aiostreams:\)[^[:space:]]*|\1${LATEST_VERSION}|g" aiostreams/build.yaml
+
+            touch aiostreams/CHANGELOG.md
+            {
+              echo "## [${LATEST_VERSION_CLEAN}] - ${CHANGELOG_DATE}"
+              echo ""
+              if [ -n "$RELEASE_NOTES" ]; then echo "$RELEASE_NOTES"; else echo "No release notes provided."; fi
+              echo ""
+              cat aiostreams/CHANGELOG.md
+            } > changelog.tmp && mv changelog.tmp aiostreams/CHANGELOG.md
+
+            echo "AIOSTREAMS_UPDATED=true" >> $GITHUB_ENV
+            echo "AIOSTREAMS_VERSION=$LATEST_VERSION_CLEAN" >> $GITHUB_ENV
+          fi
+
       - name: Commit and push changes
         env:
           GIT_USER_NAME: "github-actions[bot]"
@@ -207,6 +243,12 @@ jobs:
           if [ "$POCKET_ID_UPDATED" = "true" ]; then
             git add pocket-id/config.yaml pocket-id/Dockerfile pocket-id/CHANGELOG.md 2>/dev/null || true
             COMMIT_MSG="${COMMIT_MSG}Pocket ID to $POCKET_ID_VERSION, "
+            CHANGES_MADE=true
+          fi
+
+          if [ "$AIOSTREAMS_UPDATED" = "true" ]; then
+            git add aiostreams/config.yaml aiostreams/build.yaml aiostreams/CHANGELOG.md 2>/dev/null || true
+            COMMIT_MSG="${COMMIT_MSG}AIOStreams to $AIOSTREAMS_VERSION, "
             CHANGES_MADE=true
           fi
 
