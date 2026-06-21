@@ -2,6 +2,8 @@
 ARG BUILD_ARCH
 FROM ghcr.io/hassio-addons/base/${BUILD_ARCH}:21.0.0
 
+ARG BUILD_ARCH
+
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
