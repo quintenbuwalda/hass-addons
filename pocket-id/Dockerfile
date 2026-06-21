@@ -25,6 +25,9 @@ RUN \
 # Copy root filesystem
 COPY rootfs /
 
+RUN chmod a+x /etc/s6-overlay/s6-rc.d/init-pocket-id/run \
+    && chmod a+x /etc/s6-overlay/s6-rc.d/pocket-id/run
+
 # Build arguments passed by Home Assistant Supervisor
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
