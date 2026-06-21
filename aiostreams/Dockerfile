@@ -1,7 +1,6 @@
-ARG BUILD_FROM
-FROM ${BUILD_FROM}
+FROM ghcr.io/viren070/aiostreams:v2.30.3
 
-ARG BUILD_VERSION
+ARG BUILD_VERSION=2.30.4
 
 LABEL \
   io.hass.version=${BUILD_VERSION} \

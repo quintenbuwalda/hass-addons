@@ -3,7 +3,9 @@ import { randomBytes } from "node:crypto";
 import { join } from "node:path";
 
 const dataDirectory = "/app/data";
-const optionsPath = "/data/options.json";
+// `config.yaml` maps the add-on's persistent data volume to `/app/data`.
+// Home Assistant stores the add-on configuration in that volume as options.json.
+const optionsPath = join(dataDirectory, "options.json");
 const secretPath = join(dataDirectory, ".aiostreams-secret-key");
 const secretPattern = /^[0-9a-f]{64}$/i;
 

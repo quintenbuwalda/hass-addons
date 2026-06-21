@@ -1,6 +1,6 @@
 ---
 name: AIOStreams
-version: "2.30.3"
+version: "2.30.4"
 slug: aiostreams
 description: Consolidate Stremio add-ons and debrid services into one configurable add-on
 url: https://github.com/quintenbuwalda/hass-addons/tree/main/aiostreams
