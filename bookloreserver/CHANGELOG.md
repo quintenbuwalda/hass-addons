@@ -1,3 +1,23 @@
+## [2.3.1] - 2026-06-29
+
+## 🌟 What's New in v2.3.1
+
+### 🚀 New Features
+- Add OpenLibrary as a metadata provider (#3431) by @acx10
+
+### 🐛 Bug Fixes
+- Fix Goodreads metadata fetching with autocomplete fallback when detail pages are WAF-gated (#3431) by @acx10
+
+### 📦 Dependencies
+- Bump backend minor and patch dependencies, Flyway 12.9.0, jaudiotagger 2.0.24, Jackson BOM 3.2.0 (#3431) by @acx10
+- Bump frontend minor and patch dependencies, Angular CLI 21.2.17, Transloco 8.4.0, Vitest 4.1.9, uuid 11.1.1, and more (#3431) by @acx10
+
+## 🐳 Docker Images
+
+- **GitHub Container Registry:** `ghcr.io/booklore-app/booklore:v2.3.1`
+
+**Full Changelog**: https://github.com/booklore-app/booklore/compare/v2.3.0...v2.3.1
+
 <!-- https://developers.home-assistant.io/docs/add-ons/presentation#keeping-a-changelog -->
 ## 2.0.1
 - Update BookLore Version from 2.0.0 to 2.0.1
