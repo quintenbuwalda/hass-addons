@@ -196,7 +196,9 @@ jobs:
             CHANGELOG_DATE=$(date '+%Y-%m-%d')
 
             sed -i "s/^version: .*/version: \"${LATEST_VERSION_CLEAN}\"/" aiostreams/config.yaml
-            sed -i "s|\(ghcr.io/viren070/aiostreams:\)[^[:space:]]*|\1${LATEST_VERSION}|g" aiostreams/build.yaml
+            if [ -f "aiostreams/build.yaml" ]; then
+              sed -i "s|\(ghcr.io/viren070/aiostreams:\)[^[:space:]]*|\1${LATEST_VERSION}|g" aiostreams/build.yaml
+            fi
 
             touch aiostreams/CHANGELOG.md
             {
