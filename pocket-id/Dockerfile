@@ -22,8 +22,7 @@ RUN \
         --output /app/pocket-id \
         "https://github.com/pocket-id/pocket-id/releases/download/${POCKET_ID_VERSION}/pocket-id_linux_${ARCH}" \
     \
-    && chmod +x /app/pocket-id \
-    && /app/pocket-id --version
+    && chmod +x /app/pocket-id
 
 # Copy root filesystem
 COPY rootfs /
