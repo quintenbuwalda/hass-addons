@@ -1,6 +1,6 @@
 ---
 name: Pocket ID
-version: "2.14.1"
+version: "2.14.0"
 slug: pocket-id
 description: Simple OIDC provider for passkey authentication
 url: https://github.com/quintenbuwalda/hass-addons/tree/main/pocket-id
