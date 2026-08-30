@@ -8,7 +8,7 @@ ARG BUILD_ARCH
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Set pocket-id version
-ARG POCKET_ID_VERSION="v2.9.0"
+ARG POCKET_ID_VERSION="v2.14.0"
 
 # Install Pocket ID
 RUN \

@@ -1,11 +1,11 @@
 {
   "github_fulltag": "true",
-  "last_update": "20-06-2026",
+  "last_update": "30-08-2026",
   "beta": "false",
   "repository": "quintenbuwalda/hass-addons",
   "slug": "vaultwarden",
   "source": "github",
   "upstream_repo": "dani-garcia/vaultwarden",
-  "upstream_version": "1.36.0",
+  "upstream_version": "1.37.2",
   "paused": "false"
 }
