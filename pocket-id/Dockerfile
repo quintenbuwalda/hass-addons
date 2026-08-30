@@ -7,7 +7,7 @@ ARG BUILD_ARCH
 # Set shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Set pocket-id version
+# Set Pocket ID version
 ARG POCKET_ID_VERSION="v2.14.0"
 
 # Install Pocket ID
@@ -18,9 +18,12 @@ RUN \
     && if [[ "$BUILD_ARCH" = "amd64" ]]; then ARCH="amd64"; fi \
     \
     && mkdir -p /app \
-    && curl -J -L -o /app/pocket-id "https://github.com/pocket-id/pocket-id/releases/download/${POCKET_ID_VERSION}/pocket-id-linux-${ARCH}" \
+    && curl --fail --show-error --location \
+        --output /app/pocket-id \
+        "https://github.com/pocket-id/pocket-id/releases/download/${POCKET_ID_VERSION}/pocket-id_linux_${ARCH}" \
     \
-    && chmod +x /app/pocket-id
+    && chmod +x /app/pocket-id \
+    && /app/pocket-id --version
 
 # Copy root filesystem
 COPY rootfs /
